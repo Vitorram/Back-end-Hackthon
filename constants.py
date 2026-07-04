@@ -1,0 +1,11 @@
+from enum import Enum
+
+
+class EquipmentStatus(str, Enum):
+    EM_USO = "EM_USO"
+    EM_MANUTENCAO = "EM_MANUTENCAO"
+    EM_TRANSFERENCIA = "EM_TRANSFERENCIA"
+    DEFEITUOSO = "DEFEITUOSO"
+    DISPONIVEL = "DISPONIVEL"
+    INOPERANTE = "INOPERANTE"
+    DESCARTADO = "DESCARTADO"

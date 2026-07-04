@@ -1,0 +1,4 @@
+class UserRole:
+    SUPER_ADMIN = "SUPER_ADMIN"
+    MANAGER = "MANAGER"
+    COMMON = "COMMON"
