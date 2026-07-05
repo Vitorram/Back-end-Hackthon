@@ -113,7 +113,7 @@ DB_PORT=3306
 DB_NAME=sigtec
 DB_USER=root
 DB_PASSWORD=aluno
-JWT_SECRET_KEY=troque-por-uma-chave-secreta-grande
+JWT_SECRET_KEY=chave_secreta_de_teste_para_o_ambiente_de_desenvolvimento_123!
 ACCESS_TOKEN_EXPIRE_MINUTES=15
 REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
