@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class LoginRequest(BaseModel):
-    email: str
+    login: str
     password: str
 
 
@@ -30,3 +30,5 @@ class ApproveUserRequest(BaseModel):
     pode_ver_dashboard: bool = False
     pode_transferir: bool = False
     pode_editar_equipamento: bool = False
+    pode_abrir_chamado: bool = True
+    pode_gerenciar_usuarios: bool = False

@@ -19,6 +19,7 @@ def get_current_user(
     return {
         "id": payload.get("user_id"),
         "name": payload.get("name"),
+        "matricula": payload.get("matricula"),
         "email": payload.get("sub"),
         "role": payload.get("role"),
         "school_id": payload.get("school_id"),
@@ -28,7 +29,10 @@ def get_current_user(
 
 
 def require_super_admin(current_user: dict = Depends(get_current_user)):
-    if current_user["role"] != UserRole.SUPER_ADMIN:
+    if (
+        current_user["role"] != UserRole.SUPER_ADMIN
+        and not current_user.get("permissions", {}).get("pode_gerenciar_usuarios")
+    ):
         raise HTTPException(
             status_code=403,
             detail="Acesso permitido apenas para gestores centrais"

@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from core.dependencies import get_current_user, require_super_admin
@@ -31,12 +32,15 @@ def _user_payload(user: Usuario) -> dict:
         "sub": user.email,
         "user_id": user.id,
         "name": user.nome,
+        "matricula": user.matricula,
         "role": user.perfil,
         "school_id": user.escola_id,
         "permissions": {
             "pode_ver_dashboard": bool(user.pode_ver_dashboard),
             "pode_transferir": bool(user.pode_transferir),
             "pode_editar_equipamento": bool(user.pode_editar_equipamento),
+            "pode_abrir_chamado": bool(user.pode_abrir_chamado),
+            "pode_gerenciar_usuarios": bool(user.pode_gerenciar_usuarios),
         },
     }
 
@@ -45,16 +49,20 @@ def _user_response(user: Usuario) -> dict:
     return {
         "id": user.id,
         "nome": user.nome,
+        "matricula": user.matricula,
         "email": user.email,
         "perfil": user.perfil,
         "escola_id": user.escola_id,
         "aprovado": bool(user.aprovado),
         "aprovado_por": user.aprovado_por,
         "aprovado_em": user.aprovado_em,
+        "ultimo_acesso": user.ultimo_acesso,
         "permissoes": {
             "pode_ver_dashboard": bool(user.pode_ver_dashboard),
             "pode_transferir": bool(user.pode_transferir),
             "pode_editar_equipamento": bool(user.pode_editar_equipamento),
+            "pode_abrir_chamado": bool(user.pode_abrir_chamado),
+            "pode_gerenciar_usuarios": bool(user.pode_gerenciar_usuarios),
         },
     }
 
@@ -90,16 +98,30 @@ def _issue_tokens(db: Session, user: Usuario) -> dict:
 
 @router.post("/login", response_model=LoginResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(Usuario).filter(Usuario.email == data.email).first()
+    login_value = data.login.strip()
+    user = (
+        db.query(Usuario)
+        .filter(
+            or_(
+                Usuario.email == login_value,
+                Usuario.matricula == login_value,
+            )
+        )
+        .first()
+    )
 
     if not user or user.senha_hash != data.password:
-        raise HTTPException(status_code=401, detail="E-mail ou senha invalidos")
+        raise HTTPException(status_code=401, detail="Login ou senha invalidos")
 
     if not user.ativo:
         raise HTTPException(status_code=403, detail="Usuario inativo")
 
     if not user.aprovado and user.perfil != "SUPER_ADMIN":
         raise HTTPException(status_code=403, detail="Usuario pendente de aprovacao")
+
+    user.ultimo_acesso = datetime.now(timezone.utc).replace(tzinfo=None)
+    db.commit()
+    db.refresh(user)
 
     return _issue_tokens(db, user)
 
@@ -150,6 +172,14 @@ def logout(data: LogoutRequest, db: Session = Depends(get_db)):
     return {"message": "Logout realizado"}
 
 
+
+@router.get("/users")
+def list_users(
+    _: dict = Depends(require_super_admin),
+    db: Session = Depends(get_db),
+):
+    users = db.query(Usuario).order_by(Usuario.criado_em.desc()).all()
+    return [_user_response(user) for user in users]
 @router.get("/pending")
 def list_pending_users(
     _: dict = Depends(require_super_admin),
@@ -186,12 +216,16 @@ def approve_user(
     user.pode_ver_dashboard = data.pode_ver_dashboard
     user.pode_transferir = data.pode_transferir
     user.pode_editar_equipamento = data.pode_editar_equipamento
+    user.pode_abrir_chamado = data.pode_abrir_chamado
+    user.pode_gerenciar_usuarios = data.pode_gerenciar_usuarios
 
     if data.perfil == "SUPER_ADMIN":
         user.escola_id = None
         user.pode_ver_dashboard = True
         user.pode_transferir = True
         user.pode_editar_equipamento = True
+        user.pode_abrir_chamado = True
+        user.pode_gerenciar_usuarios = True
 
     db.commit()
     db.refresh(user)
