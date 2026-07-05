@@ -29,6 +29,7 @@ class ApproveUserRequest(BaseModel):
     escola_id: int | None = None
     pode_ver_dashboard: bool = False
     pode_transferir: bool = False
+    pode_criar_equipamento: bool = False
     pode_editar_equipamento: bool = False
     pode_abrir_chamado: bool = True
     pode_gerenciar_usuarios: bool = False

@@ -21,6 +21,7 @@ class Usuario(Base):
     ultimo_acesso = Column(DateTime, nullable=True)
     pode_ver_dashboard = Column(Boolean, default=False)
     pode_transferir = Column(Boolean, default=False)
+    pode_criar_equipamento = Column(Boolean, default=False)
     pode_editar_equipamento = Column(Boolean, default=False)
     pode_abrir_chamado = Column(Boolean, default=True)
     pode_gerenciar_usuarios = Column(Boolean, default=False)

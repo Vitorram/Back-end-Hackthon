@@ -38,6 +38,7 @@ def _user_payload(user: Usuario) -> dict:
         "permissions": {
             "pode_ver_dashboard": bool(user.pode_ver_dashboard),
             "pode_transferir": bool(user.pode_transferir),
+            "pode_criar_equipamento": bool(getattr(user, "pode_criar_equipamento", False)),
             "pode_editar_equipamento": bool(user.pode_editar_equipamento),
             "pode_abrir_chamado": bool(user.pode_abrir_chamado),
             "pode_gerenciar_usuarios": bool(user.pode_gerenciar_usuarios),
@@ -60,6 +61,7 @@ def _user_response(user: Usuario) -> dict:
         "permissoes": {
             "pode_ver_dashboard": bool(user.pode_ver_dashboard),
             "pode_transferir": bool(user.pode_transferir),
+            "pode_criar_equipamento": bool(getattr(user, "pode_criar_equipamento", False)),
             "pode_editar_equipamento": bool(user.pode_editar_equipamento),
             "pode_abrir_chamado": bool(user.pode_abrir_chamado),
             "pode_gerenciar_usuarios": bool(user.pode_gerenciar_usuarios),
@@ -215,6 +217,7 @@ def approve_user(
     user.aprovado_em = now
     user.pode_ver_dashboard = data.pode_ver_dashboard
     user.pode_transferir = data.pode_transferir
+    user.pode_criar_equipamento = data.pode_criar_equipamento
     user.pode_editar_equipamento = data.pode_editar_equipamento
     user.pode_abrir_chamado = data.pode_abrir_chamado
     user.pode_gerenciar_usuarios = data.pode_gerenciar_usuarios
@@ -223,6 +226,7 @@ def approve_user(
         user.escola_id = None
         user.pode_ver_dashboard = True
         user.pode_transferir = True
+        user.pode_criar_equipamento = True
         user.pode_editar_equipamento = True
         user.pode_abrir_chamado = True
         user.pode_gerenciar_usuarios = True

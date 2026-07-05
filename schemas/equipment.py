@@ -18,7 +18,7 @@ EquipmentStatusValue = Literal[
 
 class EquipmentBase(BaseModel):
     patrimonio: str | None = None
-    codigo_interno: str
+    codigo_interno: str | None = None
     tipo: str
     marca: str | None = None
     modelo: str | None = None
