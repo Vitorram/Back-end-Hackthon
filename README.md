@@ -288,12 +288,135 @@ python -m alembic current
 Resultado esperado:
 
 ```text
-20260705_0001 (head)
+20260705_0003 (head)
 ```
 
 ---
 
-# 8. Executar a API
+# 8. Inserir empresa, gestor e funcionario de teste
+
+Depois de executar as migrations, entre no MySQL:
+
+```powershell
+mysql -u root -p sigtec
+```
+
+Execute os inserts abaixo para criar a empresa `stgaioro`, um gestor e um funcionario:
+
+```sql
+INSERT INTO escolas (nome, codigo, endereco)
+VALUES ('STGAIORO', 'stgaioro', 'Empresa STGAIORO')
+ON DUPLICATE KEY UPDATE
+    nome = VALUES(nome),
+    endereco = VALUES(endereco);
+
+INSERT INTO usuarios (
+    nome,
+    matricula,
+    email,
+    senha_hash,
+    perfil,
+    escola_id,
+    ativo,
+    aprovado,
+    aprovado_em,
+    pode_ver_dashboard,
+    pode_transferir,
+    pode_criar_equipamento,
+    pode_editar_equipamento,
+    pode_abrir_chamado,
+    pode_gerenciar_usuarios
+)
+VALUES (
+    'Gestor STGAIORO',
+    'GESTOR-STGAIORO',
+    'gestor@stgaioro.com',
+    'gestor123',
+    'MANAGER',
+    (SELECT id FROM escolas WHERE codigo = 'stgaioro'),
+    1,
+    1,
+    NOW(),
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+)
+ON DUPLICATE KEY UPDATE
+    nome = VALUES(nome),
+    senha_hash = VALUES(senha_hash),
+    perfil = VALUES(perfil),
+    escola_id = VALUES(escola_id),
+    ativo = VALUES(ativo),
+    aprovado = VALUES(aprovado),
+    pode_ver_dashboard = VALUES(pode_ver_dashboard),
+    pode_transferir = VALUES(pode_transferir),
+    pode_criar_equipamento = VALUES(pode_criar_equipamento),
+    pode_editar_equipamento = VALUES(pode_editar_equipamento),
+    pode_abrir_chamado = VALUES(pode_abrir_chamado),
+    pode_gerenciar_usuarios = VALUES(pode_gerenciar_usuarios);
+
+INSERT INTO usuarios (
+    nome,
+    matricula,
+    email,
+    senha_hash,
+    perfil,
+    escola_id,
+    ativo,
+    aprovado,
+    aprovado_em,
+    pode_ver_dashboard,
+    pode_transferir,
+    pode_criar_equipamento,
+    pode_editar_equipamento,
+    pode_abrir_chamado,
+    pode_gerenciar_usuarios
+)
+VALUES (
+    'Funcionario STGAIORO',
+    'FUNC-STGAIORO',
+    'funcionario@stgaioro.com',
+    'funcionario123',
+    'COMMON',
+    (SELECT id FROM escolas WHERE codigo = 'stgaioro'),
+    1,
+    1,
+    NOW(),
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+)
+ON DUPLICATE KEY UPDATE
+    nome = VALUES(nome),
+    senha_hash = VALUES(senha_hash),
+    perfil = VALUES(perfil),
+    escola_id = VALUES(escola_id),
+    ativo = VALUES(ativo),
+    aprovado = VALUES(aprovado),
+    pode_ver_dashboard = VALUES(pode_ver_dashboard),
+    pode_transferir = VALUES(pode_transferir),
+    pode_criar_equipamento = VALUES(pode_criar_equipamento),
+    pode_editar_equipamento = VALUES(pode_editar_equipamento),
+    pode_abrir_chamado = VALUES(pode_abrir_chamado),
+    pode_gerenciar_usuarios = VALUES(pode_gerenciar_usuarios);
+```
+
+Logins criados:
+
+| Perfil | Login | Senha |
+| ------ | ----- | ----- |
+| Gestor | `gestor@stgaioro.com` | `gestor123` |
+| Funcionario | `funcionario@stgaioro.com` | `funcionario123` |
+
+---
+
+# 9. Executar a API
 
 ```powershell
 python -m uvicorn main:app --reload
@@ -301,7 +424,7 @@ python -m uvicorn main:app --reload
 
 ---
 
-# 9. Acessar a aplicação
+# 10. Acessar a aplicação
 
 API:
 
@@ -317,7 +440,7 @@ http://127.0.0.1:8000/docs
 
 ---
 
-# 10. Testar conexão com o banco
+# 11. Testar conexão com o banco
 
 ```text
 GET /db-test
