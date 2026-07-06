@@ -1,111 +1,260 @@
 # SIGTEC API
 
-Backend em FastAPI para o Sistema Integrado de Gestao do Parque Tecnologico. A API usa MySQL, SQLAlchemy, Alembic para migrations e JWT para autenticacao.
+Backend em **FastAPI** para o Sistema Integrado de Gestão do Parque Tecnológico.
 
-## Tecnologias
+A API utiliza **MySQL**, **SQLAlchemy**, **Alembic** para migrations e **JWT** para autenticação.
 
-- FastAPI
-- MySQL
-- SQLAlchemy
-- Alembic
-- PyMySQL
-- JWT
-- Uvicorn
-- Docker, opcional para subir o MySQL
+---
 
-## Arquitetura
+# Tecnologias
+
+* FastAPI
+* SQLAlchemy
+* Alembic
+* MySQL
+* PyMySQL
+* JWT
+* Uvicorn
+* Docker (opcional)
+
+---
+
+# Arquitetura
 
 ```text
 Route
-  v
+  ↓
 Service
-  v
+  ↓
 Repository
-  v
+  ↓
 MySQL
 ```
 
-## Modulos
+---
 
-- Auth
-- Users
-- Equipments
-- Movements
-- History
-- Dashboard
+# Módulos
 
-## Pre-requisitos
+* Auth
+* Users
+* Equipments
+* Movements
+* History
+* Dashboard
 
-- Python 3.11 ou superior
-- MySQL 8 ou Docker
-- Git, opcional
+---
 
-## 1. Entrar na pasta do projeto
+# Pré-requisitos
+
+* Python 3.11+
+* MySQL 8 ou Docker Desktop
+* Git (opcional)
+
+---
+
+# 1. Clonar o projeto
 
 ```powershell
-cd C:\Users\cg3034577\Desktop\Back-end-Hackthon
+git clone <url-do-repositorio>
+cd Back-end-Hackthon
 ```
 
-## 2. Criar e ativar o ambiente virtual
+Ou apenas entre na pasta caso o projeto já esteja baixado.
+
+---
+
+# 2. Criar o ambiente virtual
 
 ```powershell
 python -m venv .venv
+```
+
+### Caso a criação demore
+
+A criação da `.venv` pode levar alguns segundos.
+
+**Não interrompa o comando.**
+
+Se aparecer algo como:
+
+```text
+KeyboardInterrupt
+```
+
+significa que a criação foi cancelada antes do término e a pasta `.venv` ficará incompleta.
+
+Nesse caso execute:
+
+```powershell
+Remove-Item -Recurse -Force .venv
+python -m venv .venv
+```
+
+---
+
+# 3. Ativar o ambiente virtual
+
+PowerShell:
+
+```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Se o PowerShell bloquear a ativacao, rode uma vez:
+Se aparecer:
+
+```text
+(.venv)
+```
+
+na frente do terminal, está funcionando.
+
+---
+
+## Caso o PowerShell bloqueie a execução
+
+Execute apenas uma vez:
 
 ```powershell
 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
-Depois ative novamente:
+Depois:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-## 3. Instalar as dependencias
+---
+
+## Caso apareça
+
+```text
+.\.venv\Scripts\Activate.ps1 não é reconhecido
+```
+
+Verifique se a pasta foi criada corretamente:
+
+```powershell
+dir .\.venv\Scripts
+```
+
+O resultado esperado deve conter arquivos semelhantes a:
+
+```text
+Activate.ps1
+activate.bat
+activate
+pip.exe
+python.exe
+pythonw.exe
+```
+
+Se aparecer apenas:
+
+```text
+python.exe
+pythonw.exe
+```
+
+A criação da `.venv` falhou.
+
+Apague e recrie:
+
+```powershell
+Remove-Item -Recurse -Force .venv
+python -m venv .venv
+```
+
+---
+
+# 4. Instalar as dependências
 
 ```powershell
 pip install -r requirements.txt
 ```
 
-## 4. Configurar o MySQL
-
-Voce pode usar MySQL local ou Docker.
-
-### Opcao A: MySQL via Docker
+Ou:
 
 ```powershell
-docker run --name sigtec-mysql -e MYSQL_ROOT_PASSWORD=aluno -e MYSQL_DATABASE=sigtec -p 3306:3306 -d mysql:8
+python -m pip install -r requirements.txt
 ```
 
-Comandos uteis:
+Confira se tudo foi instalado:
+
+```powershell
+pip list
+```
+
+---
+
+# 5. Configurar o banco
+
+Você pode utilizar MySQL instalado ou Docker.
+
+## Opção A — Docker (recomendado)
+
+```powershell
+docker run --name sigtec-mysql ^
+-e MYSQL_ROOT_PASSWORD=aluno ^
+-e MYSQL_DATABASE=sigtec ^
+-p 3306:3306 ^
+-d mysql:8
+```
+
+Verificar:
 
 ```powershell
 docker ps
+```
+
+Parar:
+
+```powershell
 docker stop sigtec-mysql
+```
+
+Iniciar novamente:
+
+```powershell
 docker start sigtec-mysql
 ```
 
-### Opcao B: MySQL instalado na maquina
+---
 
-Acesse o MySQL:
+## Opção B — MySQL instalado
+
+Caso possua MySQL instalado:
 
 ```powershell
 mysql -u root -p
 ```
 
-Crie o banco:
+Se aparecer:
 
-```sql
-CREATE DATABASE sigtec CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```text
+mysql não é reconhecido
 ```
 
-## 5. Configurar o `.env`
+Significa que:
 
-Crie ou edite o arquivo `.env` na raiz do projeto:
+* o MySQL Client não está instalado; ou
+* o executável não está no PATH.
+
+Nesse caso utilize Docker ou instale o MySQL Client.
+
+Depois crie o banco:
+
+```sql
+CREATE DATABASE sigtec
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+```
+
+---
+
+# 6. Configurar o arquivo `.env`
+
+Crie um arquivo `.env` na raiz do projeto.
 
 ```env
 DB_HOST=localhost
@@ -113,42 +262,48 @@ DB_PORT=3306
 DB_NAME=sigtec
 DB_USER=root
 DB_PASSWORD=aluno
+
 JWT_SECRET_KEY=chave_secreta_de_teste_para_o_ambiente_de_desenvolvimento_123!
+
 ACCESS_TOKEN_EXPIRE_MINUTES=15
 REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
-Se voce mudou porta, usuario ou senha no MySQL, ajuste esses valores no `.env`.
+Caso utilize outra porta ou senha, ajuste esses valores.
 
-## 6. Rodar as migrations
+---
 
-Use Alembic para criar ou atualizar as tabelas:
-
-```powershell
-.\.venv\Scripts\python.exe -m alembic upgrade head
-```
-
-Para conferir a migration aplicada:
+# 7. Executar as migrations
 
 ```powershell
-.\.venv\Scripts\python.exe -m alembic current
+python -m alembic upgrade head
 ```
 
-Resposta esperada:
+Verificar migration atual:
+
+```powershell
+python -m alembic current
+```
+
+Resultado esperado:
 
 ```text
 20260705_0001 (head)
 ```
 
-Observacao: se o banco ja tinha tabelas criadas manualmente, a migration inicial ja esta preparada para nao tentar recriar tabelas existentes.
+---
 
-## 7. Rodar a API
+# 8. Executar a API
 
 ```powershell
-.\.venv\Scripts\python.exe -m uvicorn main:app --reload
+python -m uvicorn main:app --reload
 ```
 
-A API fica disponivel em:
+---
+
+# 9. Acessar a aplicação
+
+API:
 
 ```text
 http://127.0.0.1:8000
@@ -160,12 +315,12 @@ Swagger:
 http://127.0.0.1:8000/docs
 ```
 
-## 8. Testar a conexao com o banco
+---
 
-Com a API rodando, acesse:
+# 10. Testar conexão com o banco
 
 ```text
-http://127.0.0.1:8000/db-test
+GET /db-test
 ```
 
 Resposta esperada:
@@ -177,83 +332,139 @@ Resposta esperada:
 }
 ```
 
-## Comandos Alembic uteis
+---
 
-Criar uma nova migration depois de alterar models:
+# Comandos úteis do Alembic
 
-```powershell
-.\.venv\Scripts\python.exe -m alembic revision --autogenerate -m "descricao da alteracao"
-```
-
-Aplicar migrations pendentes:
+Nova migration:
 
 ```powershell
-.\.venv\Scripts\python.exe -m alembic upgrade head
+python -m alembic revision --autogenerate -m "descricao"
 ```
 
-Ver historico:
+Aplicar migrations:
 
 ```powershell
-.\.venv\Scripts\python.exe -m alembic history
+python -m alembic upgrade head
 ```
 
-Ver migration atual do banco:
+Migration atual:
 
 ```powershell
-.\.venv\Scripts\python.exe -m alembic current
+python -m alembic current
 ```
 
-## Endpoints principais
-
-- `GET /` - health check da API
-- `GET /db-test` - testa conexao com o MySQL
-- `POST /auth/login` - login
-- `POST /auth/refresh` - renova o token
-- `POST /auth/logout` - logout
-- `GET /auth/me` - dados do usuario autenticado
-
-As demais rotas aparecem no Swagger em `/docs`.
-
-## Problemas comuns
-
-### `Table 'escolas' already exists`
-
-Esse erro acontece quando o banco ja tinha tabelas antes do Alembic. Com a migration atual, rode novamente:
+Histórico:
 
 ```powershell
-.\.venv\Scripts\python.exe -m alembic upgrade head
+python -m alembic history
 ```
 
-### `Access denied for user`
+---
 
-Confira `DB_USER` e `DB_PASSWORD` no `.env`.
+# Endpoints principais
 
-### `Unknown database 'sigtec'`
+| Método | Endpoint        | Descrição               |
+| ------ | --------------- | ----------------------- |
+| GET    | `/`             | Health Check            |
+| GET    | `/db-test`      | Testa conexão com MySQL |
+| POST   | `/auth/login`   | Login                   |
+| POST   | `/auth/refresh` | Renovar Token           |
+| POST   | `/auth/logout`  | Logout                  |
+| GET    | `/auth/me`      | Usuário autenticado     |
 
-Crie o banco no MySQL:
+Os demais endpoints podem ser consultados em:
 
-```sql
-CREATE DATABASE sigtec CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```text
+/docs
 ```
 
-### `No module named alembic` ou `No module named fastapi`
+---
 
-Instale as dependencias dentro da `.venv`:
+# Problemas comuns
+
+## `.venv\Scripts\Activate.ps1 não é reconhecido`
+
+A criação da `.venv` falhou.
+
+Execute:
 
 ```powershell
+Remove-Item -Recurse -Force .venv
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+```
+
+---
+
+## `KeyboardInterrupt`
+
+Você interrompeu a criação da `.venv`.
+
+Apague a pasta e recrie.
+
+---
+
+## `No module named fastapi`
+
+Instale as dependências:
+
+```powershell
 pip install -r requirements.txt
 ```
 
-### Porta 3306 em uso
+---
 
-Se ja existir um MySQL rodando na porta 3306, use outra porta no Docker:
+## `No module named alembic`
 
 ```powershell
-docker run --name sigtec-mysql -e MYSQL_ROOT_PASSWORD=aluno -e MYSQL_DATABASE=sigtec -p 3307:3306 -d mysql:8
+pip install -r requirements.txt
 ```
 
-Depois ajuste o `.env`:
+---
+
+## `Unknown database 'sigtec'`
+
+Crie o banco:
+
+```sql
+CREATE DATABASE sigtec;
+```
+
+---
+
+## `Access denied for user`
+
+Confira:
+
+* `DB_USER`
+* `DB_PASSWORD`
+
+no arquivo `.env`.
+
+---
+
+## `mysql não é reconhecido`
+
+O MySQL Client não está instalado ou não está no PATH.
+
+Utilize Docker ou instale o cliente do MySQL.
+
+---
+
+## Porta 3306 ocupada
+
+Suba o container em outra porta:
+
+```powershell
+docker run --name sigtec-mysql ^
+-e MYSQL_ROOT_PASSWORD=aluno ^
+-e MYSQL_DATABASE=sigtec ^
+-p 3307:3306 ^
+-d mysql:8
+```
+
+Atualize o `.env`:
 
 ```env
 DB_PORT=3307
