@@ -293,7 +293,7 @@ Resultado esperado:
 
 ---
 
-# 8. Inserir empresa, gestor e funcionario de teste
+# 8. Inserir usuarios de teste para login
 
 Depois de executar as migrations, entre no MySQL:
 
@@ -301,22 +301,15 @@ Depois de executar as migrations, entre no MySQL:
 mysql -u root -p sigtec
 ```
 
-Execute os inserts abaixo para criar a empresa `stgaioro`, um gestor e um funcionario:
+Execute os inserts abaixo para criar um gestor e um usuario comum:
 
 ```sql
-INSERT INTO escolas (nome, codigo, endereco)
-VALUES ('STGAIORO', 'stgaioro', 'Empresa STGAIORO')
-ON DUPLICATE KEY UPDATE
-    nome = VALUES(nome),
-    endereco = VALUES(endereco);
-
 INSERT INTO usuarios (
     nome,
     matricula,
     email,
     senha_hash,
     perfil,
-    escola_id,
     ativo,
     aprovado,
     aprovado_em,
@@ -328,12 +321,11 @@ INSERT INTO usuarios (
     pode_gerenciar_usuarios
 )
 VALUES (
-    'Gestor STGAIORO',
-    'GESTOR-STGAIORO',
-    'gestor@stgaioro.com',
+    'Gestor Teste',
+    'GESTOR001',
+    'gestor@teste.com',
     'gestor123',
     'MANAGER',
-    (SELECT id FROM escolas WHERE codigo = 'stgaioro'),
     1,
     1,
     NOW(),
@@ -348,7 +340,6 @@ ON DUPLICATE KEY UPDATE
     nome = VALUES(nome),
     senha_hash = VALUES(senha_hash),
     perfil = VALUES(perfil),
-    escola_id = VALUES(escola_id),
     ativo = VALUES(ativo),
     aprovado = VALUES(aprovado),
     pode_ver_dashboard = VALUES(pode_ver_dashboard),
@@ -364,7 +355,6 @@ INSERT INTO usuarios (
     email,
     senha_hash,
     perfil,
-    escola_id,
     ativo,
     aprovado,
     aprovado_em,
@@ -376,12 +366,11 @@ INSERT INTO usuarios (
     pode_gerenciar_usuarios
 )
 VALUES (
-    'Funcionario STGAIORO',
-    'FUNC-STGAIORO',
-    'funcionario@stgaioro.com',
-    'funcionario123',
+    'Usuario Teste',
+    'USER001',
+    'usuario@teste.com',
+    'usuario123',
     'COMMON',
-    (SELECT id FROM escolas WHERE codigo = 'stgaioro'),
     1,
     1,
     NOW(),
@@ -396,7 +385,6 @@ ON DUPLICATE KEY UPDATE
     nome = VALUES(nome),
     senha_hash = VALUES(senha_hash),
     perfil = VALUES(perfil),
-    escola_id = VALUES(escola_id),
     ativo = VALUES(ativo),
     aprovado = VALUES(aprovado),
     pode_ver_dashboard = VALUES(pode_ver_dashboard),
@@ -411,8 +399,8 @@ Logins criados:
 
 | Perfil | Login | Senha |
 | ------ | ----- | ----- |
-| Gestor | `gestor@stgaioro.com` | `gestor123` |
-| Funcionario | `funcionario@stgaioro.com` | `funcionario123` |
+| Gestor | `gestor@teste.com` | `gestor123` |
+| Usuario | `usuario@teste.com` | `usuario123` |
 
 ---
 
