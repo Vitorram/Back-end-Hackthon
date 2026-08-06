@@ -218,6 +218,42 @@ def get_reports_overview(
             }
         )
 
+    equipment_inventory = []
+    for equipment in equipments:
+        school = schools.get(equipment.escola_atual_id)
+        status = equipment.status.value if hasattr(equipment.status, "value") else str(equipment.status)
+        last_movement_at = last_movements.get(equipment.id)
+        equipment_inventory.append(
+            {
+                "equipment_id": equipment.id,
+                "patrimonio": equipment.patrimonio,
+                "codigo_interno": equipment.codigo_interno,
+                "nome_equipamento": " ".join(
+                    item
+                    for item in [
+                        equipment.tipo,
+                        equipment.marca,
+                        equipment.modelo,
+                    ]
+                    if item
+                ),
+                "tipo": equipment.tipo,
+                "marca": equipment.marca,
+                "modelo": equipment.modelo,
+                "numero_serie": equipment.numero_serie,
+                "status": status,
+                "school_id": equipment.escola_atual_id,
+                "school_name": school.nome if school else f"Escola #{equipment.escola_atual_id}",
+                "school_code": school.codigo if school else "-",
+                "sala_atual": equipment.sala_atual,
+                "data_aquisicao": equipment.data_aquisicao,
+                "adquirido_em": equipment.adquirido_em,
+                "atualizado_em": equipment.atualizado_em,
+                "last_movement_at": last_movement_at,
+                "observacoes": equipment.observacoes,
+            }
+        )
+
     maintenance_items = []
     for equipment in equipments:
         status = equipment.status.value if hasattr(equipment.status, "value") else str(equipment.status)
@@ -291,6 +327,14 @@ def get_reports_overview(
             stale_equipments,
             key=lambda item: item["last_movement_at"] or datetime.min,
         )[:50],
+        "equipment_inventory": sorted(
+            equipment_inventory,
+            key=lambda item: (
+                item["school_name"],
+                item["tipo"],
+                item["patrimonio"] or item["codigo_interno"],
+            ),
+        ),
     }
 
 
@@ -311,6 +355,14 @@ def _slice_overview_for_report(overview: dict, report_type: str):
     return mapping[report_type]
 
 
+def _build_report_document(overview: dict, report_type: str) -> dict:
+    return {
+        "summary": overview["summary"],
+        "selected_report": _slice_overview_for_report(overview, report_type),
+        "equipment_inventory": overview["equipment_inventory"],
+    }
+
+
 def create_saved_report(db: Session, current_user: dict, data) -> SavedReport:
     _ensure_can_view_reports(current_user)
 
@@ -328,7 +380,7 @@ def create_saved_report(db: Session, current_user: dict, data) -> SavedReport:
         equipment_ids=data.equipment_ids,
         statuses=data.statuses,
     )
-    result = _slice_overview_for_report(overview, data.tipo)
+    result = _build_report_document(overview, data.tipo)
 
     saved_report = SavedReport(
         titulo=title[:140],
@@ -418,7 +470,10 @@ def _flatten_row(prefix: str, value, row: dict) -> None:
 
 def report_to_csv(report: SavedReport) -> str:
     result = report.resultado
-    rows = result if isinstance(result, list) else [result]
+    if isinstance(result, dict) and isinstance(result.get("equipment_inventory"), list):
+        rows = result["equipment_inventory"]
+    else:
+        rows = result if isinstance(result, list) else [result]
     flat_rows = []
 
     for item in rows:
