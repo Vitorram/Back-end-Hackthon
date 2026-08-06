@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
-from backend.models import equipment, equipment_history, escola, movement, refresh_token
+from backend.models import equipment, equipment_history, escola, movement, refresh_token, saved_report
 from sqlalchemy import engine_from_config, pool
 
 from backend.database.database import Base, DATABASE_URL

@@ -1,6 +1,6 @@
 import os
 
-from backend.app.router import agent, auth, equipment, history, movement, school
+from backend.app.router import agent, auth, equipment, history, movement, report, school
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -33,6 +33,7 @@ app.include_router(equipment.router)
 app.include_router(movement.router)
 app.include_router(history.router)
 app.include_router(school.router)
+app.include_router(report.router)
 app.include_router(test_auth.router)
 
 

@@ -12,6 +12,7 @@ from backend.core.security import (
     decode_refresh_token,
     get_token_expiration,
     hash_token,
+    verify_password,
 )
 from backend.database.database import get_db
 from backend.models.refresh_token import RefreshToken
@@ -112,7 +113,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         .first()
     )
 
-    if not user or user.senha_hash != data.password:
+    if not user or not verify_password(data.password, user.senha_hash):
         raise HTTPException(status_code=401, detail="Login ou senha invalidos")
 
     if not user.ativo:

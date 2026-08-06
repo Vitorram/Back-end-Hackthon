@@ -13,6 +13,7 @@ from backend.models.equipment import Equipment
 from backend.models.equipment_history import EquipmentHistory
 from backend.models.escola import Escola
 from backend.models.usuario import Usuario
+from backend.core.security import hash_password
 
 SCHOOLS = [
     ("CAR-MOCK-001", "EMEF Prof. Antonio de Freitas Avelar", "Travessao"),
@@ -48,7 +49,7 @@ def upsert_admin(db):
             nome="Gestor Tecnologia Educacional",
             matricula="CAR-MOCK-ADM",
             email="gestor@caragua.sp.gov.br",
-            senha_hash="123456",
+            senha_hash=hash_password("123456"),
             perfil="SUPER_ADMIN",
             escola_id=None,
         )

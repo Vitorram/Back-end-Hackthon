@@ -1,12 +1,14 @@
 import hashlib
 import os
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from uuid import uuid4
 
+import bcrypt
 from dotenv import load_dotenv
 from jose import JWTError, jwt
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
@@ -19,6 +21,17 @@ if not SECRET_KEY:
 
 def _now_utc() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    try:
+        return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
+    except ValueError:
+        return False
 
 
 def _create_token(data: dict, token_type: str, expires_delta: timedelta) -> str:
